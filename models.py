@@ -11,6 +11,11 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True)
     created_at: Mapped[DateTime] = mapped_column(server_default=func.now())
 
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan",
+    )
+
 
 class Chat(Base):
     __tablename__ = "chat"
@@ -18,6 +23,12 @@ class Chat(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     created_at: Mapped[DateTime] = mapped_column(server_default=func.now())
+
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="chat",
+        cascade="all, delete-orphan",
+        order_by="Message.created_at",
+    )
 
 
 class Message(Base):
