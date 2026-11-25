@@ -1,5 +1,5 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func, Table
-from sqlalchemy.orm import Mapped, mapped_column, relationships, relationship
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func, Table
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
 
@@ -29,6 +29,11 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True)
     created_at: Mapped[DateTime] = mapped_column(server_default=func.now())
 
+    chats: Mapped[list["Chat"]] = relationship(
+        secondary=chat_user,
+        back_populates="users",
+    )
+
     messages: Mapped[list["Message"]] = relationship(
         back_populates="author",
         cascade="all, delete-orphan",
@@ -41,6 +46,11 @@ class Chat(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     created_at: Mapped[DateTime] = mapped_column(server_default=func.now())
+
+    users: Mapped[list[User]] = relationship(
+        secondary=chat_user,
+        back_populates="chats",
+    )
 
     messages: Mapped[list["Message"]] = relationship(
         back_populates="chat",
