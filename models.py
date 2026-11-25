@@ -1,7 +1,25 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationships, relationship
 
 from database import Base
+
+# Промежуточная таблица для связей
+chat_user = Table(
+    "chat_user",
+    Base.metadata,
+    Column(
+        "chat_id",
+        Integer,
+        ForeignKey("chat.id", ondelete="CASCADE"),
+        primary_key=True
+    ),
+    Column(
+        "user_id",
+        Integer,
+        ForeignKey("user.id", ondelete="CASCADE"),
+        primary_key=True
+    ),
+)
 
 
 class User(Base):
