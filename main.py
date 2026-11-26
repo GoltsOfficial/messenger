@@ -1,19 +1,9 @@
 from fastapi import FastAPI
 
+from routes import users, chats, messages
 
-app = FastAPI()
+app = FastAPI(title="Messenger")
 
-# Добавить нового пользователя
-@app.post("")
-
-# Создать новый чат между пользователями
-@app.post("")
-
-# Отправить сообщение в чат от лица пользователя
-@app.post("")
-
-# Получить список чатов конкретного пользователя
-@app.get("")
-
-# Получить список сообщений в конкретном чате
-@app.get("")
+app.include_router(users.router)
+app.include_router(chats.router)
+app.include_router(messages.router)
