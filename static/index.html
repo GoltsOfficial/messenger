@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messenger</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <!-- Auth -->
+    <section id="auth-screen" class="screen">
+      <div class="auth-card">
+        <div class="logo">
+          <span class="logo-icon">💬</span>
+          <h1>Messenger</h1>
+        </div>
+        <p class="subtitle">Войдите или создайте аккаунт</p>
+
+        <div class="tabs">
+          <button type="button" class="tab active" data-tab="login">Вход</button>
+          <button type="button" class="tab" data-tab="register">Регистрация</button>
+        </div>
+
+        <form id="auth-form" autocomplete="on">
+          <div class="field">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" name="username" required maxlength="100" placeholder="username" />
+          </div>
+          <div class="field">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" required minlength="1" placeholder="••••••••" />
+          </div>
+          <p id="auth-error" class="error" hidden></p>
+          <button type="submit" class="btn btn-primary" id="auth-submit">Войти</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Chat app -->
+    <section id="app-screen" class="screen" hidden>
+      <header class="header">
+        <div class="header-left">
+          <span class="logo-icon small">💬</span>
+          <h1>Messenger</h1>
+        </div>
+        <div class="header-right">
+          <span id="user-name" class="user-email"></span>
+          <button type="button" id="logout-btn" class="btn btn-ghost">Выйти</button>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <h2>Чаты</h2>
+            <button type="button" id="new-chat-btn" class="btn btn-primary btn-sm">+ Новый</button>
+          </div>
+          <ul id="chat-list" class="chat-list"></ul>
+          <p id="chats-empty" class="empty-state small" hidden>Пока нет чатов</p>
+        </aside>
+
+        <main class="chat-main">
+          <div id="no-chat" class="empty-state">Выберите чат или создайте новый</div>
+
+          <div id="chat-view" hidden>
+            <div class="chat-header">
+              <h2 id="chat-title"></h2>
+            </div>
+            <div id="messages" class="messages"></div>
+            <form id="send-form" class="send-form">
+              <input
+                type="text"
+                id="message-input"
+                placeholder="Написать сообщение…"
+                maxlength="250"
+                autocomplete="off"
+                required
+              />
+              <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <!-- New chat modal -->
+    <div id="modal" class="modal" hidden>
+      <div class="modal-card">
+        <h2>Новый чат</h2>
+        <form id="new-chat-form">
+          <div class="field">
+            <label for="chat-name">Название</label>
+            <input type="text" id="chat-name" required maxlength="100" placeholder="Название чата" />
+          </div>
+          <div class="field">
+            <label>Участники</label>
+            <div id="users-checklist" class="users-checklist"></div>
+          </div>
+          <p id="modal-error" class="error" hidden></p>
+          <div class="modal-actions">
+            <button type="button" id="modal-cancel" class="btn btn-ghost">Отмена</button>
+            <button type="submit" class="btn btn-primary">Создать</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

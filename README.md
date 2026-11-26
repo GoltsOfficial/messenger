@@ -1,28 +1,30 @@
 # Messenger
 
-Backend API для простого мессенджера: пользователи, чаты и сообщения.
+Backend + простой веб-интерфейс мессенджера: пользователи, JWT-авторизация, чаты и сообщения.
 
 ## Возможности
 
-- Создание пользователей
+- Регистрация и вход (JWT / OAuth2 password flow)
 - Создание чатов с участниками
-- Список чатов пользователя
-- Отправка сообщений в чат
-- Получение истории сообщений чата
+- Список своих чатов
+- Отправка и просмотр сообщений
+- Веб-UI: вход, список чатов, переписка
 
 ## Стек
 
 | Компонент | Технология |
 |-----------|------------|
 | API | FastAPI |
+| Auth | JWT (python-jose), bcrypt, OAuth2PasswordBearer |
 | ORM | SQLAlchemy 2.x |
 | БД | PostgreSQL 16 |
 | Миграции | Alembic |
 | Валидация | Pydantic v2 |
 | Сервер | Uvicorn |
+| Фронтенд | HTML / CSS / JS (static) |
 | Контейнеры | Docker, Docker Compose |
 
-Архитектура: **routes → services → repositories**.
+Архитектура API: **routes → services → repositories**.
 
 ## Быстрый старт (Docker)
 
@@ -37,15 +39,13 @@ docker compose up --build
 
 После запуска:
 
-- API: [http://localhost:9000](http://localhost:9000)
+- Веб-интерфейс: [http://localhost:9000](http://localhost:9000)
 - Swagger UI: [http://localhost:9000/docs](http://localhost:9000/docs)
 - ReDoc: [http://localhost:9000/redoc](http://localhost:9000/redoc)
 
 Миграции Alembic применяются автоматически при старте контейнера.
 
 ## Переменные окружения
-
-Скопируй `.env.example` в `.env` и при необходимости измени значения:
 
 ```env
 DATABASE_URL=postgresql+psycopg://messenger:messenger@postgres:5432/messenger
@@ -56,43 +56,38 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 TEST_DATABASE_URL=postgresql+psycopg://messenger:messenger@localhost:5432/messenger_test
 ```
 
-В `docker-compose.yaml` `DATABASE_URL` уже задан для контейнера приложения. `SECRET_KEY` обязателен (читается из `.env`).
+## API
 
-## Основные эндпоинты
-
-### Пользователи
+### Auth
 
 | Метод | Путь | Описание |
 |-------|------|----------|
-| `POST` | `/users` | Создать пользователя (`username`) |
+| `POST` | `/auth/register` | Регистрация (`username`, `password`) JSON |
+| `POST` | `/auth/login` | Вход (form: `username`, `password`) → JWT |
 
-### Чаты
+### Пользователи (Bearer token)
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `GET` | `/users/me` | Текущий пользователь |
+| `GET` | `/users` | Список пользователей |
+
+### Чаты и сообщения (Bearer token)
 
 | Метод | Путь | Описание |
 |-------|------|----------|
 | `POST` | `/chats` | Создать чат (`name`, `user_ids`) |
-| `GET` | `/chats/user/{user_id}` | Список чатов пользователя |
-
-### Сообщения
-
-| Метод | Путь | Описание |
-|-------|------|----------|
-| `POST` | `/chats/{chat_id}/messages` | Отправить сообщение (`author_id`, `text`) |
-| `GET` | `/chats/{chat_id}/messages` | История сообщений (`limit`, по умолчанию 50) |
+| `GET` | `/chats` | Мои чаты |
+| `POST` | `/chats/{id}/messages` | Отправить сообщение (`text`) |
+| `GET` | `/chats/{id}/messages` | История (`limit`) |
 
 ## Локальный запуск без Docker
 
-1. Подними PostgreSQL и создай БД `messenger`.
-2. Установи зависимости:
-
 ```bash
 pip install -r requirements.txt
-```
+cp .env.example .env
+# DATABASE_URL на localhost
 
-3. Создай `.env` (для локальной БД укажи `localhost` в `DATABASE_URL`).
-4. Примени миграции и запусти API:
-
-```bash
 alembic upgrade head
 uvicorn main:app --reload --host 0.0.0.0 --port 9000
 ```
@@ -101,22 +96,27 @@ uvicorn main:app --reload --host 0.0.0.0 --port 9000
 
 ```
 .
-├── alembic/              # миграции БД
-├── repositories/         # работа с БД
-├── routes/               # HTTP-эндпоинты
-├── services/             # бизнес-логика
-├── config.py             # настройки из env
-├── database.py           # SQLAlchemy engine / session
-├── main.py               # точка входа FastAPI
-├── models.py             # модели User, Chat, Message
-├── schemas.py            # Pydantic-схемы
+├── alembic/
+├── repositories/
+├── routes/               # auth, users, chats, messages
+├── services/
+├── static/               # веб-UI
+│   ├── css/
+│   ├── js/
+│   └── index.html
+├── config.py
+├── database.py
+├── dependencies.py       # get_current_user (JWT)
+├── main.py
+├── models.py
+├── schemas.py
+├── security.py           # bcrypt + JWT
 ├── Dockerfile
 ├── docker-compose.yaml
-├── .env.example
-└── requirements.txt
+└── .env.example
 ```
 
 ## Требования
 
-- Docker и Docker Compose (рекомендуемый способ)
+- Docker и Docker Compose (рекомендуется)
 - либо Python 3.12+ и PostgreSQL 16
