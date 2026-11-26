@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+import models
 from database import get_db
+from dependencies import get_current_user
 from repositories.chats import ChatRepository
 from repositories.users import UserRepository
 from schemas import ChatCreate, ChatOut
@@ -18,13 +20,14 @@ def get_chat_service(db: Session = Depends(get_db)) -> ChatService:
 def create_chat(
         payload: ChatCreate,
         service: ChatService = Depends(get_chat_service),
+        current_user: models.User = Depends(get_current_user),
 ):
-    return service.create(payload)
+    return service.create(payload, current_user.id)
 
 
-@router.get("/user/{user_id}", response_model=list[ChatOut])
-def list_user_chats(
-        user_id: int,
+@router.get("", response_model=list[ChatOut])
+def list_my_chats(
         service: ChatService = Depends(get_chat_service),
+        current_user: models.User = Depends(get_current_user),
 ):
-    return service.list_for_user(user_id)
+    return service.list_for_user(current_user.id)
